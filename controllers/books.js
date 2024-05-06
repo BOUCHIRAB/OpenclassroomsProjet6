@@ -98,3 +98,31 @@ exports.deleteBook = (req, res, next) => {
       res.status(500).json({ error })
     })
 }
+
+exports.rateBook = (req, res, next) => {
+  Book.findOne({
+    _id: req.params.id,
+  }).then((book) => {
+    book.ratings.push({
+      userId: req.auth.userId,
+      grade: req.body.rating,
+    })
+
+    let cumul = 0
+    let UpdateAverageRating =
+      book.ratings.reduce(
+        (acc, currentValue) => acc + currentValue.grade,
+        cumul
+      ) / book.ratings.length
+    book.averageRating = Math.round(UpdateAverageRating)
+
+    return book
+      .save()
+      .then((book) => res.status(201).json(book))
+      .catch((error) =>
+        res
+          .status(401)
+          .json({ error, message: "You have already rated this book" })
+      )
+  })
+}
