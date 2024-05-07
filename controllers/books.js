@@ -126,3 +126,14 @@ exports.rateBook = (req, res, next) => {
       )
   })
 }
+exports.getBestBooks = (req, res, next) => {
+  Book.find()
+    .then((books) => {
+      let sortBooks = books.sort((a, b) => b.averageRating - a.averageRating)
+
+      res.status(201).json([sortBooks[0], sortBooks[1], sortBooks[2]])
+    })
+    .catch((error) => {
+      res.status(404).json({ error: error })
+    })
+}
