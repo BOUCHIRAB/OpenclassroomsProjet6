@@ -7,8 +7,7 @@ exports.createBook = (req, res, next) => {
   delete bookObject._userId
   bookObject.averageRating = 0
   if (bookObject.ratings.grade === 0) {
-    bookObject.ratings.userId = ""
-    bookObject.ratings.grade = ""
+    bookObject.ratings = []
   }
 
   const book = new Book({
@@ -16,12 +15,13 @@ exports.createBook = (req, res, next) => {
     userId: req.auth.userId,
     imageUrl: `${req.protocol}://${req.get("host")}/images/${
       req.file.filename
-    }`,
+    }.webp`,
   })
 
   book
     .save()
     .then(() => {
+      console.log(book.imageUrl)
       res.status(201).json({ message: "Livre enregistré !" })
     })
     .catch((error) => {
@@ -131,7 +131,17 @@ exports.getBestBooks = (req, res, next) => {
     .then((books) => {
       let sortBooks = books.sort((a, b) => b.averageRating - a.averageRating)
 
-      res.status(201).json([sortBooks[0], sortBooks[1], sortBooks[2]])
+      if (sortBooks.length < 3) {
+        if (sortBooks.length === 2) {
+          res.status(201).json([sortBooks[0], sortBooks[1]])
+        } else {
+          if (sortBooks.length === 1) {
+            res.status(201).json([sortBooks[0]])
+          }
+        }
+      } else {
+        res.status(201).json([sortBooks[0], sortBooks[1], sortBooks[2]])
+      }
     })
     .catch((error) => {
       res.status(404).json({ error: error })
