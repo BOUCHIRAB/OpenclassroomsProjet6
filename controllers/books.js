@@ -21,7 +21,6 @@ exports.createBook = (req, res, next) => {
   book
     .save()
     .then(() => {
-      console.log(book.imageUrl)
       res.status(201).json({ message: "Livre enregistré !" })
     })
     .catch((error) => {
@@ -55,7 +54,7 @@ exports.modifyBook = (req, res, next) => {
         ...JSON.parse(req.body.book),
         imageUrl: `${req.protocol}://${req.get("host")}/images/${
           req.file.filename
-        }`,
+        }.webp`,
       }
     : { ...req.body }
 
@@ -65,6 +64,11 @@ exports.modifyBook = (req, res, next) => {
       if (book.userId != req.auth.userId) {
         res.status(403).json({ message: "unauthorized request" })
       } else {
+        if (req.file) {
+          const filename = book.imageUrl.split("/images/")[1]
+          fs.unlinkSync(`images/${filename}`)
+        }
+
         Book.updateOne(
           { _id: req.params.id },
           { ...bookObject, _id: req.params.id }

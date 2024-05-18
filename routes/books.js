@@ -12,7 +12,7 @@ router.get("/bestrating", booksCtrl.getBestBooks)
 router.post("/", auth, multer, compressedImage, booksCtrl.createBook)
 router.post("/:id/rating", auth, booksCtrl.rateBook)
 router.get("/:id", booksCtrl.getOneBook)
-router.put("/:id", auth, multer, booksCtrl.modifyBook)
+router.put("/:id", auth, multer, compressedImage, booksCtrl.modifyBook)
 router.delete("/:id", auth, booksCtrl.deleteBook)
 
 module.exports = router
